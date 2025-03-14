@@ -1,0 +1,52 @@
+{
+    "openapi":"3.0.3",
+    "info": {
+      "title":"Product API",
+      "version":"1.0"
+    },
+    "servers": [
+      {"url":"http://localhost:3000"}
+    ],
+    "paths": {
+      "/products": {
+        "get": {
+          "tags": ["Product API"],
+          "description": "List All Products",
+          "responses": {
+            "200": {
+              "description": "Success",
+              "content": {
+                "application/json":{
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "code":{
+                        "type": "number"
+                      },
+                      "status":{
+                        "type": "string"
+                      },
+                      "data": {
+                        "type": "array",
+                        "items":{
+                          "type": "object",
+                          "properties": {
+                            "id":{
+                              "type": "number"
+                            },
+                            "name": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
