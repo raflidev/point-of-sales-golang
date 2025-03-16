@@ -1,12 +1,12 @@
 package main
 
 import (
-  "gorm.io/gorm"
-  "gorm.io/driver/postgres"
 	"testing"
-	"github.com/stretchr/testify/assert"
-)
 
+	"github.com/stretchr/testify/assert"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+)
 
 func OpenConnection() *gorm.DB {
 	dsn := "host=localhost user=postgres password=postgres dbname=point-of-sales-golang port=5432 sslmode=disable"
@@ -21,6 +21,6 @@ func OpenConnection() *gorm.DB {
 
 var db = OpenConnection()
 
-func TestOpenConnection(t *testing.T){
+func TestOpenConnection(t *testing.T) {
 	assert.NotNil(t, db)
 }
