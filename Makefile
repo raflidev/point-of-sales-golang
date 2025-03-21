@@ -6,3 +6,10 @@ build:
 
 run:
 	go run main.go
+
+db-down:
+	migrate -path db/migrations -database postgres://postgres:postgres@localhost/point-of-sales-golang?sslmode=disable down
+
+db-up:
+	migrate -path db/migrations -database postgres://postgres:postgres@localhost/point-of-sales-golang?sslmode=disable up
+

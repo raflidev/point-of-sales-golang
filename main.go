@@ -17,8 +17,8 @@ import (
 func main() {
 	db := app.NewDB()
 	validate := validator.New()
-	productRepository := repository.NewProductRepository()
-	productService := service.NewProductService(productRepository, db, validate)
+	productRepository := repository.NewProductRepository(db)
+	productService := service.NewProductService(productRepository, validate)
 	productController := controller.NewProductController(productService)
 
 	router := httprouter.New()

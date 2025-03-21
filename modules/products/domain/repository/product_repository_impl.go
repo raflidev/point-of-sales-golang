@@ -4,31 +4,42 @@ import (
 	"context"
 	"errors"
 	"golang-point-of-sales-system/helper"
-	domain "golang-point-of-sales-system/modules/products/domain/entity"
+	"golang-point-of-sales-system/modules/products/domain/entity"
+	"log"
 
 	"github.com/jmoiron/sqlx"
 )
 
 type ProductRepositoryImpl struct {
+	DB *sqlx.DB
 }
 
-func NewProductRepository() ProductRepository {
-	return &ProductRepositoryImpl{}
+func NewProductRepository(db *sqlx.DB) ProductRepository {
+	return &ProductRepositoryImpl{
+		DB: db,
+	}
 }
 
-func (repository *ProductRepositoryImpl) Save(ctx context.Context, tx *sqlx.Tx, product domain.Product) domain.Product {
-	SQL := "insert into product(kode_produk, nama_produk, merk, harga_beli, harga_jual, stok) values(?)"
-	result, err := tx.ExecContext(ctx, SQL, product.Kode_produk, product.Nama_produk, product.Merk, product.Harga_beli, product.Harga_jual, product.Stok)
-	helper.PanicIfError(err)
+func (repository *ProductRepositoryImpl) Save(ctx context.Context, product entity.Product) entity.Product {
 
-	id, err := result.LastInsertId()
-	helper.PanicIfError(err)
+	tx := repository.DB.MustBegin()
+	defer tx.Commit()
 
-	product.Id = int(id)
+	SQL := "insert into product (kode_produk, nama_produk, merk, harga_beli, harga_jual, stok) values($1, $2, $3, $4, $5, $6)"
+	result := tx.MustExec(SQL, product.Kode_produk, product.Nama_produk, product.Merk, product.Harga_beli, product.Harga_jual, product.Stok)
+	n, err := result.RowsAffected()
+	if err != nil || n == 0 {
+		log.Println(err)
+	}
+
+	helper.DD(product)
 	return product
 }
 
-func (repository *ProductRepositoryImpl) Update(ctx context.Context, tx *sqlx.Tx, product domain.Product) domain.Product {
+func (repository *ProductRepositoryImpl) Update(ctx context.Context, product entity.Product) entity.Product {
+	tx := repository.DB.MustBegin()
+	defer tx.Commit()
+
 	SQL := "update product set kode_produk=?, nama_produk=?, merk=?, harga_beli=?, harga_jual=?, stok=? where id=?"
 	_, err := tx.ExecContext(ctx, SQL, product.Kode_produk, product.Nama_produk, product.Merk, product.Harga_beli, product.Harga_jual, product.Stok, product.Id)
 	helper.PanicIfError(err)
@@ -36,18 +47,24 @@ func (repository *ProductRepositoryImpl) Update(ctx context.Context, tx *sqlx.Tx
 	return product
 }
 
-func (repository *ProductRepositoryImpl) Delete(ctx context.Context, tx *sqlx.Tx, product domain.Product) {
+func (repository *ProductRepositoryImpl) Delete(ctx context.Context, product entity.Product) {
+	tx := repository.DB.MustBegin()
+	defer tx.Commit()
+
 	SQL := "delete from product where id=?"
 	_, err := tx.ExecContext(ctx, SQL, product.Id)
 	helper.PanicIfError(err)
 }
 
-func (repository *ProductRepositoryImpl) FindById(ctx context.Context, tx *sqlx.Tx, productId int) (domain.Product, error) {
+func (repository *ProductRepositoryImpl) FindById(ctx context.Context, productId int) (entity.Product, error) {
+	tx := repository.DB.MustBegin()
+	defer tx.Commit()
+
 	SQL := "select id, kode_produk, nama_produk, merk, harga_beli, harga_jual, stok from product where id=?"
 	rows, err := tx.QueryxContext(ctx, SQL, productId)
 	helper.PanicIfError(err)
 
-	product := domain.Product{}
+	product := entity.Product{}
 	if rows.Next() {
 		err = rows.Scan(&product.Id, &product.Kode_produk, &product.Nama_produk, &product.Merk, &product.Harga_beli, &product.Harga_jual, &product.Stok)
 		helper.PanicIfError(err)
@@ -58,14 +75,17 @@ func (repository *ProductRepositoryImpl) FindById(ctx context.Context, tx *sqlx.
 
 }
 
-func (repository *ProductRepositoryImpl) FindAll(ctx context.Context, tx *sqlx.Tx) []domain.Product {
-	SQL := "select id, kode_produk, nama_produk, merk, harga_beli, harga_jual, stok from products"
+func (repository *ProductRepositoryImpl) FindAll(ctx context.Context) []entity.Product {
+	tx := repository.DB.MustBegin()
+	defer tx.Commit()
+
+	SQL := "select id, kode_produk, nama_produk, merk, harga_beli, harga_jual, stok from product"
 	rows, err := tx.QueryxContext(ctx, SQL)
 	helper.PanicIfError(err)
 
-	var products []domain.Product
+	var products []entity.Product
 	for rows.Next() {
-		product := domain.Product{}
+		product := entity.Product{}
 		err = rows.Scan(&product.Id, &product.Kode_produk, &product.Nama_produk, &product.Merk, &product.Harga_beli, &product.Harga_jual, &product.Stok)
 		helper.PanicIfError(err)
 		products = append(products, product)

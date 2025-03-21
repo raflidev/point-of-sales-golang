@@ -9,19 +9,16 @@ import (
 	"golang-point-of-sales-system/modules/products/dto/response"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/jmoiron/sqlx"
 )
 
 type ProductServiceImpl struct {
 	ProductRepository repository.ProductRepository
-	DB                *sqlx.DB
 	Validate          *validator.Validate
 }
 
-func NewProductService(productRepository repository.ProductRepository, db *sqlx.DB, validate *validator.Validate) ProductService {
+func NewProductService(productRepository repository.ProductRepository, validate *validator.Validate) ProductService {
 	return &ProductServiceImpl{
 		ProductRepository: productRepository,
-		DB:                db,
 		Validate:          validate,
 	}
 }
@@ -29,10 +26,6 @@ func NewProductService(productRepository repository.ProductRepository, db *sqlx.
 func (service *ProductServiceImpl) Create(ctx context.Context, request request.ProductCreateRequest) response.ProductResponse {
 	err := service.Validate.Struct(request)
 	helper.PanicIfError(err)
-
-	tx, err := service.DB.Beginx()
-	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx)
 
 	product := entity.Product{
 		Kode_produk: request.Kode_produk,
@@ -43,7 +36,7 @@ func (service *ProductServiceImpl) Create(ctx context.Context, request request.P
 		Stok:        request.Stok,
 	}
 
-	product = service.ProductRepository.Save(ctx, tx, product)
+	product = service.ProductRepository.Save(ctx, product)
 
 	return helper.ToProductResponse(product)
 }
@@ -52,11 +45,7 @@ func (service *ProductServiceImpl) Update(ctx context.Context, request request.P
 	err := service.Validate.Struct(request)
 	helper.PanicIfError(err)
 
-	tx, err := service.DB.Beginx()
-	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx)
-
-	product, err := service.ProductRepository.FindById(ctx, tx, request.Id)
+	product, err := service.ProductRepository.FindById(ctx, request.Id)
 	helper.PanicIfError(err)
 
 	product.Kode_produk = request.Kode_produk
@@ -66,38 +55,28 @@ func (service *ProductServiceImpl) Update(ctx context.Context, request request.P
 	product.Harga_jual = request.Harga_jual
 	product.Stok = request.Stok
 
-	product = service.ProductRepository.Update(ctx, tx, product)
+	product = service.ProductRepository.Update(ctx, product)
 
 	return helper.ToProductResponse(product)
 }
 
 func (service *ProductServiceImpl) Delete(ctx context.Context, productId int) {
-	tx, err := service.DB.Beginx()
-	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx)
 
-	product, err := service.ProductRepository.FindById(ctx, tx, productId)
+	product, err := service.ProductRepository.FindById(ctx, productId)
 	helper.PanicIfError(err)
 
-	service.ProductRepository.Delete(ctx, tx, product)
+	service.ProductRepository.Delete(ctx, product)
 }
 
 func (service *ProductServiceImpl) FindById(ctx context.Context, productId int) response.ProductResponse {
-	tx, err := service.DB.Beginx()
-	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx)
 
-	product, err := service.ProductRepository.FindById(ctx, tx, productId)
+	product, err := service.ProductRepository.FindById(ctx, productId)
 	helper.PanicIfError(err)
 
 	return helper.ToProductResponse(product)
 }
 
 func (service *ProductServiceImpl) FindAll(ctx context.Context) []response.ProductResponse {
-	tx, err := service.DB.Beginx()
-	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx)
-
-	products := service.ProductRepository.FindAll(ctx, tx)
+	products := service.ProductRepository.FindAll(ctx)
 	return helper.ToProductResponses(products)
 }
