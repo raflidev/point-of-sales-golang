@@ -4,6 +4,7 @@ import (
 	"golang-point-of-sales-system/helper"
 	"golang-point-of-sales-system/modules/products/domain/service"
 	"golang-point-of-sales-system/modules/products/dto/request"
+	"golang-point-of-sales-system/modules/products/dto/response"
 	"net/http"
 	"strconv"
 
@@ -26,7 +27,7 @@ func (controller *ProductControllerImpl) Create(writer http.ResponseWriter, cReq
 
 	productResponse := controller.ProductService.Create(cRequest.Context(), productRequest)
 
-	webResponse := request.WebResponse{
+	webResponse := response.WebResponse{
 		Code:   200,
 		Status: "OK",
 		Data:   productResponse,
@@ -47,7 +48,7 @@ func (controller *ProductControllerImpl) Update(writer http.ResponseWriter, cReq
 
 	productResponse := controller.ProductService.Update(cRequest.Context(), productRequest)
 
-	webResponse := request.WebResponse{
+	webResponse := response.WebResponse{
 		Code:   200,
 		Status: "OK",
 		Data:   productResponse,
@@ -63,7 +64,7 @@ func (controller *ProductControllerImpl) Delete(writer http.ResponseWriter, cReq
 
 	controller.ProductService.Delete(cRequest.Context(), id)
 
-	webResponse := request.WebResponse{
+	webResponse := response.WebResponse{
 		Code:   200,
 		Status: "OK",
 	}
@@ -78,7 +79,7 @@ func (controller *ProductControllerImpl) FindById(writer http.ResponseWriter, cR
 
 	productResponse := controller.ProductService.FindById(cRequest.Context(), id)
 
-	webResponse := request.WebResponse{
+	webResponse := response.WebResponse{
 		Code:   200,
 		Status: "OK",
 		Data:   productResponse,
@@ -90,7 +91,7 @@ func (controller *ProductControllerImpl) FindById(writer http.ResponseWriter, cR
 func (controller *ProductControllerImpl) FindAll(writer http.ResponseWriter, cRequest *http.Request, params httprouter.Params) {
 	productResponses := controller.ProductService.FindAll(cRequest.Context())
 
-	webResponse := request.WebResponse{
+	webResponse := response.WebResponse{
 		Code:   200,
 		Status: "OK",
 		Data:   productResponses,

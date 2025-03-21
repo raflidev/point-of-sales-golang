@@ -17,7 +17,7 @@ func NewProductRepository() ProductRepository {
 }
 
 func (repository *ProductRepositoryImpl) Save(ctx context.Context, tx *sqlx.Tx, product domain.Product) domain.Product {
-	SQL := "insert into products(kode_produk, nama_produk, merk, harga_beli, harga_jual, stok) values(?)"
+	SQL := "insert into product(kode_produk, nama_produk, merk, harga_beli, harga_jual, stok) values(?)"
 	result, err := tx.ExecContext(ctx, SQL, product.Kode_produk, product.Nama_produk, product.Merk, product.Harga_beli, product.Harga_jual, product.Stok)
 	helper.PanicIfError(err)
 
@@ -29,7 +29,7 @@ func (repository *ProductRepositoryImpl) Save(ctx context.Context, tx *sqlx.Tx, 
 }
 
 func (repository *ProductRepositoryImpl) Update(ctx context.Context, tx *sqlx.Tx, product domain.Product) domain.Product {
-	SQL := "update products set kode_produk=?, nama_produk=?, merk=?, harga_beli=?, harga_jual=?, stok=? where id=?"
+	SQL := "update product set kode_produk=?, nama_produk=?, merk=?, harga_beli=?, harga_jual=?, stok=? where id=?"
 	_, err := tx.ExecContext(ctx, SQL, product.Kode_produk, product.Nama_produk, product.Merk, product.Harga_beli, product.Harga_jual, product.Stok, product.Id)
 	helper.PanicIfError(err)
 
@@ -37,13 +37,13 @@ func (repository *ProductRepositoryImpl) Update(ctx context.Context, tx *sqlx.Tx
 }
 
 func (repository *ProductRepositoryImpl) Delete(ctx context.Context, tx *sqlx.Tx, product domain.Product) {
-	SQL := "delete from products where id=?"
+	SQL := "delete from product where id=?"
 	_, err := tx.ExecContext(ctx, SQL, product.Id)
 	helper.PanicIfError(err)
 }
 
 func (repository *ProductRepositoryImpl) FindById(ctx context.Context, tx *sqlx.Tx, productId int) (domain.Product, error) {
-	SQL := "select id, kode_produk, nama_produk, merk, harga_beli, harga_jual, stok from products where id=?"
+	SQL := "select id, kode_produk, nama_produk, merk, harga_beli, harga_jual, stok from product where id=?"
 	rows, err := tx.QueryxContext(ctx, SQL, productId)
 	helper.PanicIfError(err)
 

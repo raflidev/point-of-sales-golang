@@ -1,0 +1,33 @@
+### Create Product
+POST http://localhost:3000/api/v1/product/add
+Content-Type: application/json
+
+{
+  "kode_produk": "P001",
+  "nama_produk": "Product Name",
+  "merk": "Brand Name",
+  "harga_beli": 10000,
+  "harga_jual": 15000,
+  "stok": 50
+}
+
+### Read Product
+GET http://localhost:3000/api/v1/product/{{product_id}}
+Content-Type: application/json
+
+### Update Product
+PUT http://localhost:3000/api/v1/product/update/{{product_id}}
+Content-Type: application/json
+
+{
+  "kode_produk": "P001",
+  "nama_produk": "Updated Product Name",
+  "merk": "Updated Brand Name",
+  "harga_beli": 12000,
+  "harga_jual": 18000,
+  "stok": 60
+}
+
+### Delete Product
+DELETE http://localhost:3000/api/v1/product/delete/{{product_id}}
+Content-Type: application/json
