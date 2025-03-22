@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"golang-point-of-sales-system/app"
 	"golang-point-of-sales-system/controller"
 	"golang-point-of-sales-system/helper"
@@ -36,4 +37,6 @@ func main() {
 
 	err := server.ListenAndServe()
 	helper.PanicIfError(err)
+
+	fmt.Println("Server is running on port 3000")
 }

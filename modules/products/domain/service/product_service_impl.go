@@ -9,6 +9,7 @@ import (
 	"golang-point-of-sales-system/modules/products/dto/response"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 )
 
 type ProductServiceImpl struct {
@@ -60,7 +61,7 @@ func (service *ProductServiceImpl) Update(ctx context.Context, request request.P
 	return helper.ToProductResponse(product)
 }
 
-func (service *ProductServiceImpl) Delete(ctx context.Context, productId int) {
+func (service *ProductServiceImpl) Delete(ctx context.Context, productId uuid.UUID) {
 
 	product, err := service.ProductRepository.FindById(ctx, productId)
 	helper.PanicIfError(err)
@@ -68,7 +69,7 @@ func (service *ProductServiceImpl) Delete(ctx context.Context, productId int) {
 	service.ProductRepository.Delete(ctx, product)
 }
 
-func (service *ProductServiceImpl) FindById(ctx context.Context, productId int) response.ProductResponse {
+func (service *ProductServiceImpl) FindById(ctx context.Context, productId uuid.UUID) response.ProductResponse {
 
 	product, err := service.ProductRepository.FindById(ctx, productId)
 	helper.PanicIfError(err)

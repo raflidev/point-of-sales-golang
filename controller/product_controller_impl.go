@@ -6,8 +6,8 @@ import (
 	"golang-point-of-sales-system/modules/products/dto/request"
 	"golang-point-of-sales-system/modules/products/dto/response"
 	"net/http"
-	"strconv"
 
+	"github.com/google/uuid"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -41,10 +41,13 @@ func (controller *ProductControllerImpl) Update(writer http.ResponseWriter, cReq
 	helper.ReadFromRequestBody(cRequest, &productRequest)
 
 	productId := params.ByName("productId")
-	id, err := strconv.Atoi(productId)
-	helper.PanicIfError(err)
 
-	productRequest.Id = id
+	parsedUUID, err := uuid.Parse(productId)
+	if err != nil {
+		http.Error(writer, "Invalid UUID format", http.StatusBadRequest)
+		return
+	}
+	productRequest.Id = parsedUUID
 
 	productResponse := controller.ProductService.Update(cRequest.Context(), productRequest)
 
@@ -59,8 +62,12 @@ func (controller *ProductControllerImpl) Update(writer http.ResponseWriter, cReq
 
 func (controller *ProductControllerImpl) Delete(writer http.ResponseWriter, cRequest *http.Request, params httprouter.Params) {
 	productId := params.ByName("productId")
-	id, err := strconv.Atoi(productId)
-	helper.PanicIfError(err)
+
+	id, err := uuid.Parse(productId)
+	if err != nil {
+		http.Error(writer, "Invalid UUID format", http.StatusBadRequest)
+		return
+	}
 
 	controller.ProductService.Delete(cRequest.Context(), id)
 
@@ -74,11 +81,14 @@ func (controller *ProductControllerImpl) Delete(writer http.ResponseWriter, cReq
 
 func (controller *ProductControllerImpl) FindById(writer http.ResponseWriter, cRequest *http.Request, params httprouter.Params) {
 	productId := params.ByName("productId")
-	id, err := strconv.Atoi(productId)
-	helper.PanicIfError(err)
+
+	id, err := uuid.Parse(productId)
+	if err != nil {
+		http.Error(writer, "Invalid UUID format", http.StatusBadRequest)
+		return
+	}
 
 	productResponse := controller.ProductService.FindById(cRequest.Context(), id)
-
 	webResponse := response.WebResponse{
 		Code:   200,
 		Status: "OK",

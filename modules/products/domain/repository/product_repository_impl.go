@@ -2,11 +2,11 @@ package repository
 
 import (
 	"context"
-	"errors"
 	"golang-point-of-sales-system/helper"
 	"golang-point-of-sales-system/modules/products/domain/entity"
 	"log"
 
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -32,7 +32,6 @@ func (repository *ProductRepositoryImpl) Save(ctx context.Context, product entit
 		log.Println(err)
 	}
 
-	helper.DD(product)
 	return product
 }
 
@@ -40,9 +39,12 @@ func (repository *ProductRepositoryImpl) Update(ctx context.Context, product ent
 	tx := repository.DB.MustBegin()
 	defer tx.Commit()
 
-	SQL := "update product set kode_produk=?, nama_produk=?, merk=?, harga_beli=?, harga_jual=?, stok=? where id=?"
-	_, err := tx.ExecContext(ctx, SQL, product.Kode_produk, product.Nama_produk, product.Merk, product.Harga_beli, product.Harga_jual, product.Stok, product.Id)
-	helper.PanicIfError(err)
+	SQL := "update product set kode_produk=$2, nama_produk=$3, merk=$4, harga_beli=$5, harga_jual=$6, stok=$7 where id=$1"
+	result := tx.MustExec(SQL, product.Id, product.Kode_produk, product.Nama_produk, product.Merk, product.Harga_beli, product.Harga_jual, product.Stok)
+	n, err := result.RowsAffected()
+	if err != nil || n == 0 {
+		log.Println(err)
+	}
 
 	return product
 }
@@ -51,28 +53,32 @@ func (repository *ProductRepositoryImpl) Delete(ctx context.Context, product ent
 	tx := repository.DB.MustBegin()
 	defer tx.Commit()
 
-	SQL := "delete from product where id=?"
-	_, err := tx.ExecContext(ctx, SQL, product.Id)
-	helper.PanicIfError(err)
+	SQL := "delete from product where id=$1"
+	result := tx.MustExec(SQL, product.Id)
+	// helper.PanicIfError(result.Error())
+	n, err := result.RowsAffected()
+	if err != nil || n == 0 {
+		log.Println(err)
+	}
 }
 
-func (repository *ProductRepositoryImpl) FindById(ctx context.Context, productId int) (entity.Product, error) {
+func (repository *ProductRepositoryImpl) FindById(ctx context.Context, productId uuid.UUID) (entity.Product, error) {
 	tx := repository.DB.MustBegin()
 	defer tx.Commit()
-
-	SQL := "select id, kode_produk, nama_produk, merk, harga_beli, harga_jual, stok from product where id=?"
-	rows, err := tx.QueryxContext(ctx, SQL, productId)
-	helper.PanicIfError(err)
-
-	product := entity.Product{}
-	if rows.Next() {
-		err = rows.Scan(&product.Id, &product.Kode_produk, &product.Nama_produk, &product.Merk, &product.Harga_beli, &product.Harga_jual, &product.Stok)
-		helper.PanicIfError(err)
-		return product, nil
-	} else {
-		return product, errors.New("product not found")
+	SQL := "select id, kode_produk, nama_produk, merk, harga_beli, harga_jual, stok from product where id=$1"
+	result := tx.MustExec(SQL, productId)
+	n, err := result.RowsAffected()
+	if err != nil || n == 0 {
+		log.Println(err)
 	}
 
+	product := entity.Product{}
+	err = tx.Get(&product, SQL, productId)
+	if err != nil {
+		return entity.Product{}, err
+	}
+
+	return product, nil
 }
 
 func (repository *ProductRepositoryImpl) FindAll(ctx context.Context) []entity.Product {
