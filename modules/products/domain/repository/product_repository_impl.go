@@ -32,7 +32,6 @@ func (repository *ProductRepositoryImpl) Save(ctx context.Context, product entit
 		log.Println(err)
 	}
 
-	helper.DD(product)
 	return product
 }
 
@@ -63,6 +62,7 @@ func (repository *ProductRepositoryImpl) FindById(ctx context.Context, productId
 	SQL := "select id, kode_produk, nama_produk, merk, harga_beli, harga_jual, stok from product where id=?"
 	rows, err := tx.QueryxContext(ctx, SQL, productId)
 	helper.PanicIfError(err)
+	defer rows.Close()
 
 	product := entity.Product{}
 	if rows.Next() {
@@ -82,6 +82,7 @@ func (repository *ProductRepositoryImpl) FindAll(ctx context.Context) []entity.P
 	SQL := "select id, kode_produk, nama_produk, merk, harga_beli, harga_jual, stok from product"
 	rows, err := tx.QueryxContext(ctx, SQL)
 	helper.PanicIfError(err)
+	defer rows.Close()
 
 	var products []entity.Product
 	for rows.Next() {

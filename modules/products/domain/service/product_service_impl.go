@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"golang-point-of-sales-system/exception"
 	"golang-point-of-sales-system/helper"
 	"golang-point-of-sales-system/modules/products/domain/entity"
 	"golang-point-of-sales-system/modules/products/domain/repository"
@@ -46,7 +47,9 @@ func (service *ProductServiceImpl) Update(ctx context.Context, request request.P
 	helper.PanicIfError(err)
 
 	product, err := service.ProductRepository.FindById(ctx, request.Id)
-	helper.PanicIfError(err)
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
 
 	product.Kode_produk = request.Kode_produk
 	product.Nama_produk = request.Nama_produk
@@ -63,7 +66,9 @@ func (service *ProductServiceImpl) Update(ctx context.Context, request request.P
 func (service *ProductServiceImpl) Delete(ctx context.Context, productId int) {
 
 	product, err := service.ProductRepository.FindById(ctx, productId)
-	helper.PanicIfError(err)
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
 
 	service.ProductRepository.Delete(ctx, product)
 }
@@ -71,7 +76,9 @@ func (service *ProductServiceImpl) Delete(ctx context.Context, productId int) {
 func (service *ProductServiceImpl) FindById(ctx context.Context, productId int) response.ProductResponse {
 
 	product, err := service.ProductRepository.FindById(ctx, productId)
-	helper.PanicIfError(err)
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
 
 	return helper.ToProductResponse(product)
 }

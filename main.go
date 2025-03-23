@@ -3,6 +3,7 @@ package main
 import (
 	"golang-point-of-sales-system/app"
 	"golang-point-of-sales-system/controller"
+	"golang-point-of-sales-system/exception"
 	"golang-point-of-sales-system/helper"
 	"golang-point-of-sales-system/modules/products/domain/repository"
 	"golang-point-of-sales-system/modules/products/domain/service"
@@ -28,6 +29,8 @@ func main() {
 	router.GET("/api/v1/product/show/:productId", productController.FindById)
 	router.PUT("/api/v1/product/update/:productId", productController.Update)
 	router.DELETE("/api/v1/product/delete/:productId", productController.Delete)
+
+	router.PanicHandler = exception.ErrorHandler
 
 	server := http.Server{
 		Addr:    "localhost:3000",
