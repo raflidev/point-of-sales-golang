@@ -5,7 +5,7 @@ build:
 	go build -o bin/$(APP_NAME) main.go
 
 run:
-	go run main.go
+	air
 
 db-down:
 	migrate -path db/migrations -database postgres://postgres:postgres@localhost/point-of-sales-golang?sslmode=disable down
@@ -13,3 +13,11 @@ db-down:
 db-up:
 	migrate -path db/migrations -database postgres://postgres:postgres@localhost/point-of-sales-golang?sslmode=disable up
 
+db-test-down:
+	migrate -path db/migrations -database postgres://postgres:postgres@localhost/point-of-sales-golang-test?sslmode=disable down
+
+db-test-up:
+	migrate -path db/migrations -database postgres://postgres:postgres@localhost/point-of-sales-golang-test?sslmode=disable up
+
+install:
+	go mod download

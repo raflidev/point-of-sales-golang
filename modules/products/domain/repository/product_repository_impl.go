@@ -65,27 +65,11 @@ func (repository *ProductRepositoryImpl) Delete(ctx context.Context, product ent
 func (repository *ProductRepositoryImpl) FindById(ctx context.Context, productId uuid.UUID) (entity.Product, error) {
 	tx := repository.DB.MustBegin()
 	defer tx.Commit()
-<<<<<<< HEAD
-
-	SQL := "select id, kode_produk, nama_produk, merk, harga_beli, harga_jual, stok from product where id=?"
-	rows, err := tx.QueryxContext(ctx, SQL, productId)
-	helper.PanicIfError(err)
-	defer rows.Close()
-
-	product := entity.Product{}
-	if rows.Next() {
-		err = rows.Scan(&product.Id, &product.Kode_produk, &product.Nama_produk, &product.Merk, &product.Harga_beli, &product.Harga_jual, &product.Stok)
-		helper.PanicIfError(err)
-		return product, nil
-	} else {
-		return product, errors.New("product not found")
-=======
 	SQL := "select id, kode_produk, nama_produk, merk, harga_beli, harga_jual, stok from product where id=$1"
 	result := tx.MustExec(SQL, productId)
 	n, err := result.RowsAffected()
 	if err != nil || n == 0 {
 		log.Println(err)
->>>>>>> 8d852c30e4c68c293b32435a7e74972cef7332dc
 	}
 
 	product := entity.Product{}
