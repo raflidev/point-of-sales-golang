@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"golang-point-of-sales-system/helper"
 	"golang-point-of-sales-system/modules/products/domain/entity"
 	"log"
@@ -25,13 +26,14 @@ func (repository *ProductRepositoryImpl) Save(ctx context.Context, product entit
 	tx := repository.DB.MustBegin()
 	defer tx.Commit()
 
-	SQL := "insert into product (kode_produk, nama_produk, merk, harga_beli, harga_jual, stok) values($1, $2, $3, $4, $5, $6)"
-	result := tx.MustExec(SQL, product.Kode_produk, product.Nama_produk, product.Merk, product.Harga_beli, product.Harga_jual, product.Stok)
-	n, err := result.RowsAffected()
-	if err != nil || n == 0 {
-		log.Println(err)
+	var lastUUID string
+	SQL := "insert into product (kode_produk, nama_produk, merk, harga_beli, harga_jual, stok) values($1, $2, $3, $4, $5, $6) returning id"
+	err := tx.QueryRowx(SQL, product.Kode_produk, product.Nama_produk, product.Merk, product.Harga_beli, product.Harga_jual, product.Stok).Scan(&lastUUID)
+	if err != nil {
+		tx.Rollback()
+		log.Fatal(err)
 	}
-
+	product.Id = uuid.MustParse(lastUUID)
 	return product
 }
 
@@ -75,7 +77,7 @@ func (repository *ProductRepositoryImpl) FindById(ctx context.Context, productId
 	product := entity.Product{}
 	err = tx.Get(&product, SQL, productId)
 	if err != nil {
-		return entity.Product{}, err
+		return entity.Product{}, errors.New("product is not found")
 	}
 
 	return product, nil

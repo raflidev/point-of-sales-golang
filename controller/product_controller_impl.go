@@ -44,7 +44,13 @@ func (controller *ProductControllerImpl) Update(writer http.ResponseWriter, cReq
 
 	parsedUUID, err := uuid.Parse(productId)
 	if err != nil {
-		http.Error(writer, "Invalid UUID format", http.StatusBadRequest)
+		webResponse := response.WebResponse{
+			Code:   400,
+			Status: "BAD REQUEST",
+			Data:   "Invalid UUID format",
+		}
+
+		helper.WriteToResponseBody(writer, webResponse)
 		return
 	}
 	productRequest.Id = parsedUUID
@@ -65,7 +71,13 @@ func (controller *ProductControllerImpl) Delete(writer http.ResponseWriter, cReq
 
 	id, err := uuid.Parse(productId)
 	if err != nil {
-		http.Error(writer, "Invalid UUID format", http.StatusBadRequest)
+		webResponse := response.WebResponse{
+			Code:   400,
+			Status: "BAD REQUEST",
+			Data:   "Invalid UUID format",
+		}
+
+		helper.WriteToResponseBody(writer, webResponse)
 		return
 	}
 
@@ -84,7 +96,13 @@ func (controller *ProductControllerImpl) FindById(writer http.ResponseWriter, cR
 
 	id, err := uuid.Parse(productId)
 	if err != nil {
-		http.Error(writer, "Invalid UUID format", http.StatusBadRequest)
+		webResponse := response.WebResponse{
+			Code:   400,
+			Status: "BAD REQUEST",
+			Data:   "Invalid UUID format",
+		}
+
+		helper.WriteToResponseBody(writer, webResponse)
 		return
 	}
 

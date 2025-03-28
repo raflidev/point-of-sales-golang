@@ -36,31 +36,30 @@ func validationError(writter http.ResponseWriter, cRequest *http.Request, err in
 
 		helper.WriteToResponseBody(writter, webResponse)
 		return true
-	}
-
-	return false
-}
-
-func notFoundError(writter http.ResponseWriter, cRequest *http.Request, err interface{}) bool {
-	if err == nil {
+	} else {
 		return false
 	}
 
-	if notFoundError, ok := err.(NotFoundError); ok {
+}
+
+func notFoundError(writter http.ResponseWriter, cRequest *http.Request, err interface{}) bool {
+	exception, ok := err.(NotFoundError)
+
+	if ok {
 		writter.Header().Set("Content-Type", "application/json")
 		writter.WriteHeader(http.StatusNotFound)
 
 		webResponse := response.WebResponse{
 			Code:   http.StatusNotFound,
 			Status: "NOT FOUND",
-			Data:   notFoundError.Error,
+			Data:   exception.Error,
 		}
 
 		helper.WriteToResponseBody(writter, webResponse)
 		return true
+	} else {
+		return false
 	}
-
-	return false
 }
 
 func internalServerError(writter http.ResponseWriter, cRequest *http.Request, err interface{}) {
