@@ -15,18 +15,24 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+func NewServer(authMiddleware *middleware.AuthMiddleware) *http.Server {
+	return &http.Server{
+		Addr:    "localhost:3000",
+		Handler: authMiddleware,
+	}
+
+}
+
 func main() {
 	db := app.NewDB()
 	validate := validator.New()
 	productRepository := repository.NewProductRepository(db)
 	productService := service.NewProductService(productRepository, validate)
 	productController := controller.NewProductController(productService)
-
 	router := app.NewRouter(productController)
-	server := http.Server{
-		Addr:    "localhost:3000",
-		Handler: middleware.NewAuthMiddleware(router),
-	}
+	authMiddleware := middleware.NewAuthMiddleware(router)
+
+	server := NewServer(authMiddleware)
 
 	err := server.ListenAndServe()
 	helper.PanicIfError(err)
