@@ -59,9 +59,12 @@ func (service *ProductServiceImpl) Update(ctx context.Context, request request.P
 	product.Harga_jual = request.Harga_jual
 	product.Stok = request.Stok
 
-	product = service.ProductRepository.Update(ctx, product)
+	updatedProduct, err := service.ProductRepository.Update(ctx, product)
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
 
-	return helper.ToProductResponse(product)
+	return helper.ToProductResponse(updatedProduct)
 }
 
 func (service *ProductServiceImpl) Delete(ctx context.Context, productId uuid.UUID) {

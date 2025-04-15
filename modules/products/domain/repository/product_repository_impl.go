@@ -3,102 +3,84 @@ package repository
 import (
 	"context"
 	"errors"
-	"golang-point-of-sales-system/helper"
 	"golang-point-of-sales-system/modules/products/domain/entity"
 	"log"
 
 	"github.com/google/uuid"
-	"github.com/jmoiron/sqlx"
+	"gorm.io/gorm"
 )
 
 type ProductRepositoryImpl struct {
-	DB *sqlx.DB
+	DB *gorm.DB
 }
 
-func NewProductRepository(db *sqlx.DB) ProductRepository {
+func NewProductRepository(db *gorm.DB) ProductRepository {
 	return &ProductRepositoryImpl{
 		DB: db,
 	}
 }
 
 func (repository *ProductRepositoryImpl) Save(ctx context.Context, product entity.Product) entity.Product {
-
-	tx := repository.DB.MustBegin()
-	defer tx.Commit()
-
-	var lastUUID string
-	SQL := "insert into product (kode_produk, nama_produk, merk, harga_beli, harga_jual, stok) values($1, $2, $3, $4, $5, $6) returning id"
-	err := tx.QueryRowx(SQL, product.Kode_produk, product.Nama_produk, product.Merk, product.Harga_beli, product.Harga_jual, product.Stok).Scan(&lastUUID)
-	if err != nil {
-		tx.Rollback()
-		log.Fatal(err)
+	result := repository.DB.Create(&product)
+	if result.Error != nil {
+		log.Println(result.Error)
+	} else {
+		log.Println("Product created successfully")
 	}
-	product.Id = uuid.MustParse(lastUUID)
+
 	return product
 }
 
-func (repository *ProductRepositoryImpl) Update(ctx context.Context, product entity.Product) entity.Product {
-	tx := repository.DB.MustBegin()
-	defer tx.Commit()
-
-	SQL := "update product set kode_produk=$2, nama_produk=$3, merk=$4, harga_beli=$5, harga_jual=$6, stok=$7 where id=$1"
-	result := tx.MustExec(SQL, product.Id, product.Kode_produk, product.Nama_produk, product.Merk, product.Harga_beli, product.Harga_jual, product.Stok)
-	n, err := result.RowsAffected()
-	if err != nil || n == 0 {
-		log.Println(err)
+func (repository *ProductRepositoryImpl) Update(ctx context.Context, product entity.Product) (entity.Product, error) {
+	// First check if the product exists
+	var existingProduct entity.Product
+	result := repository.DB.First(&existingProduct, "id = ?", product.Id)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return entity.Product{}, errors.New("product not found")
+		}
+		return entity.Product{}, result.Error
 	}
 
-	return product
+	// Update the product using Updates to only update non-zero fields
+	result = repository.DB.Model(&existingProduct).Updates(product)
+	if result.Error != nil {
+		return entity.Product{}, result.Error
+	}
+
+	return existingProduct, nil
 }
 
 func (repository *ProductRepositoryImpl) Delete(ctx context.Context, product entity.Product) {
-	tx := repository.DB.MustBegin()
-	defer tx.Commit()
-
-	SQL := "delete from product where id=$1"
-	result := tx.MustExec(SQL, product.Id)
-	// helper.PanicIfError(result.Error())
-	n, err := result.RowsAffected()
-	if err != nil || n == 0 {
-		log.Println(err)
+	result := repository.DB.Delete(&product)
+	if result.Error != nil {
+		log.Println(result.Error)
+	} else {
+		log.Println("Product deleted successfully")
 	}
+
 }
 
 func (repository *ProductRepositoryImpl) FindById(ctx context.Context, productId uuid.UUID) (entity.Product, error) {
-	tx := repository.DB.MustBegin()
-	defer tx.Commit()
-	SQL := "select id, kode_produk, nama_produk, merk, harga_beli, harga_jual, stok from product where id=$1"
-	result := tx.MustExec(SQL, productId)
-	n, err := result.RowsAffected()
-	if err != nil || n == 0 {
-		log.Println(err)
-	}
-
-	product := entity.Product{}
-	err = tx.Get(&product, SQL, productId)
-	if err != nil {
-		return entity.Product{}, errors.New("product is not found")
+	var product entity.Product
+	result := repository.DB.First(&product, "id = ?", productId)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return entity.Product{}, result.Error
+		}
+		log.Println(result.Error)
+		return entity.Product{}, result.Error
 	}
 
 	return product, nil
 }
 
 func (repository *ProductRepositoryImpl) FindAll(ctx context.Context) []entity.Product {
-	tx := repository.DB.MustBegin()
-	defer tx.Commit()
-
-	SQL := "select id, kode_produk, nama_produk, merk, harga_beli, harga_jual, stok from product"
-	rows, err := tx.QueryxContext(ctx, SQL)
-	helper.PanicIfError(err)
-	defer rows.Close()
-
-	var products []entity.Product
-	for rows.Next() {
-		product := entity.Product{}
-		err = rows.Scan(&product.Id, &product.Kode_produk, &product.Nama_produk, &product.Merk, &product.Harga_beli, &product.Harga_jual, &product.Stok)
-		helper.PanicIfError(err)
-		products = append(products, product)
+	result := []entity.Product{}
+	repository.DB.Find(&result)
+	if len(result) == 0 {
+		log.Println("No products found")
+		return nil
 	}
-
-	return products
+	return result
 }
