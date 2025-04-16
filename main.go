@@ -6,8 +6,10 @@ import (
 	"golang-point-of-sales-system/controller"
 	"golang-point-of-sales-system/helper"
 	"golang-point-of-sales-system/middleware"
-	"golang-point-of-sales-system/modules/products/domain/repository"
-	"golang-point-of-sales-system/modules/products/domain/service"
+	productRepo "golang-point-of-sales-system/modules/products/domain/repository"
+	productService "golang-point-of-sales-system/modules/products/domain/service"
+	supplierRepo "golang-point-of-sales-system/modules/suppliers/domain/repository"
+	supplierService "golang-point-of-sales-system/modules/suppliers/domain/service"
 	"net/http"
 
 	_ "github.com/jmoiron/sqlx"
@@ -26,10 +28,14 @@ func NewServer(authMiddleware *middleware.AuthMiddleware) *http.Server {
 func main() {
 	db := app.NewDB()
 	validate := validator.New()
-	productRepository := repository.NewProductRepository(db)
-	productService := service.NewProductService(productRepository, validate)
+	productRepository := productRepo.NewProductRepository(db)
+	productService := productService.NewProductService(productRepository, validate)
 	productController := controller.NewProductController(productService)
-	router := app.NewRouter(productController)
+
+	supplierRepository := supplierRepo.NewSupplierRepository(db)
+	supplierService := supplierService.NewSupplierService(supplierRepository, validate)
+	supplierController := controller.NewSupplierController(supplierService)
+	router := app.NewRouter(productController, supplierController)
 	authMiddleware := middleware.NewAuthMiddleware(router)
 
 	server := NewServer(authMiddleware)

@@ -7,6 +7,9 @@ build:
 run:
 	air
 
+create-migrate:
+	migrate create -ext sql -dir db/migrations -seq $(name)
+
 db-down:
 	migrate -path db/migrations -database postgres://postgres:postgres@localhost/point-of-sales-golang?sslmode=disable down
 
