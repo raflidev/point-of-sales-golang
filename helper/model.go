@@ -8,15 +8,15 @@ import (
 	responseSupplier "golang-point-of-sales-system/modules/suppliers/dto/response"
 )
 
-func ToProductResponse(category entityProduct.Product) responseProduct.ProductResponse {
+func ToProductResponse(product entityProduct.Product) responseProduct.ProductResponse {
 	return responseProduct.ProductResponse{
-		Id:          category.Id,
-		Kode_produk: category.Kode_produk,
-		Nama_produk: category.Nama_produk,
-		Merk:        category.Merk,
-		Harga_beli:  category.Harga_beli,
-		Harga_jual:  category.Harga_jual,
-		Stok:        category.Stok,
+		Id:          product.Id,
+		Kode_produk: product.Kode_produk,
+		Nama_produk: product.Nama_produk,
+		Merk:        product.Merk,
+		Harga_beli:  product.Harga_beli,
+		Harga_jual:  product.Harga_jual,
+		Stok:        product.Stok,
 	}
 }
 

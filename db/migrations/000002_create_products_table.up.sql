@@ -1,6 +1,7 @@
 CREATE TABLE product
 (
-  id uuid DEFAULT gen_random_uuid(),
+  id CHAR(36) NOT NULL,
+  kategori_id CHAR(36) NOT NULL,
   kode_produk VARCHAR(255) NULL,
   nama_produk VARCHAR(255) NULL,
   merk VARCHAR(255) NULL,
@@ -10,5 +11,6 @@ CREATE TABLE product
   stok INT NULL,
   create_at TIMESTAMP DEFAULT now(),
   update_at TIMESTAMP DEFAULT now(),
-  PRIMARY KEY(id) 
+  PRIMARY KEY(id),
+  FOREIGN KEY (kategori_id) REFERENCES Kategori(id)
 )
