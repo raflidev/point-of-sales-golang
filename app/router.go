@@ -1,21 +1,22 @@
 package app
 
 import (
-	"golang-point-of-sales-system/controller"
 	"golang-point-of-sales-system/exception"
+	productHandler "golang-point-of-sales-system/modules/products/controller"
+	supplierHandler "golang-point-of-sales-system/modules/suppliers/controller"
 
 	"github.com/julienschmidt/httprouter"
 )
 
 type Router struct {
-	router            *httprouter.Router
-	productController controller.ProductController
-	supplierController controller.SupplierController
+	router             *httprouter.Router
+	productController  productHandler.ProductController
+	supplierController supplierHandler.SupplierController
 }
 
 func NewRouter(
-	productController controller.ProductController,
-	supplierController controller.SupplierController,
+	productController productHandler.ProductController,
+	supplierController supplierHandler.SupplierController,
 ) *httprouter.Router {
 	router := httprouter.New()
 

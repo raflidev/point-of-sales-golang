@@ -15,7 +15,7 @@ type SupplierControllerImpl struct {
 	SupplierService service.SupplierService
 }
 
-func NewSupplierController(SupplierService service.SupplierService) ProductController {
+func NewSupplierController(SupplierService service.SupplierService) SupplierController {
 	return &SupplierControllerImpl{
 		SupplierService: SupplierService,
 	}

@@ -3,11 +3,12 @@ package main
 import (
 	"fmt"
 	"golang-point-of-sales-system/app"
-	"golang-point-of-sales-system/controller"
 	"golang-point-of-sales-system/helper"
 	"golang-point-of-sales-system/middleware"
+	productController "golang-point-of-sales-system/modules/products/controller"
 	productRepo "golang-point-of-sales-system/modules/products/domain/repository"
 	productService "golang-point-of-sales-system/modules/products/domain/service"
+	supplierController "golang-point-of-sales-system/modules/suppliers/controller"
 	supplierRepo "golang-point-of-sales-system/modules/suppliers/domain/repository"
 	supplierService "golang-point-of-sales-system/modules/suppliers/domain/service"
 	"net/http"
@@ -30,12 +31,13 @@ func main() {
 	validate := validator.New()
 	productRepository := productRepo.NewProductRepository(db)
 	productService := productService.NewProductService(productRepository, validate)
-	productController := controller.NewProductController(productService)
+	productHandler := productController.NewProductController(productService)
 
 	supplierRepository := supplierRepo.NewSupplierRepository(db)
 	supplierService := supplierService.NewSupplierService(supplierRepository, validate)
-	supplierController := controller.NewSupplierController(supplierService)
-	router := app.NewRouter(productController, supplierController)
+	supplierHandler := supplierController.NewSupplierController(supplierService)
+
+	router := app.NewRouter(productHandler, supplierHandler)
 	authMiddleware := middleware.NewAuthMiddleware(router)
 
 	server := NewServer(authMiddleware)
