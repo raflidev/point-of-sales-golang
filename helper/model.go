@@ -6,6 +6,9 @@ import (
 
 	entitySupplier "golang-point-of-sales-system/modules/suppliers/domain/entity"
 	responseSupplier "golang-point-of-sales-system/modules/suppliers/dto/response"
+
+	entityCategory "golang-point-of-sales-system/modules/categories/domain/entity"
+	responseCategory "golang-point-of-sales-system/modules/categories/dto/response"
 )
 
 func ToProductResponse(product entityProduct.Product) responseProduct.ProductResponse {
@@ -45,4 +48,20 @@ func ToSupplierResponses(suppliers []entitySupplier.Supplier) []responseSupplier
 	}
 
 	return supplierResponses
+}
+
+func ToCategoryResponse(category entityCategory.Category) responseCategory.CategoryResponse {
+	return responseCategory.CategoryResponse{
+		Id:            category.Id,
+		Nama_kategori: category.Nama_kategori,
+	}
+}
+
+func ToCategoryResponses(categories []entityCategory.Category) []responseCategory.CategoryResponse {
+	var categoryResponses []responseCategory.CategoryResponse
+	for _, category := range categories {
+		categoryResponses = append(categoryResponses, ToCategoryResponse(category))
+	}
+
+	return categoryResponses
 }
