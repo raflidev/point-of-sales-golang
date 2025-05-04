@@ -3,6 +3,7 @@ package app
 import (
 	"golang-point-of-sales-system/adapters"
 	"golang-point-of-sales-system/exception"
+	categoryHandler "golang-point-of-sales-system/modules/categories/controller"
 	productHandler "golang-point-of-sales-system/modules/products/controller"
 	supplierHandler "golang-point-of-sales-system/modules/suppliers/controller"
 
@@ -19,15 +20,16 @@ type Router struct {
 func NewRouter(
 	productController productHandler.ProductController,
 	supplierController supplierHandler.SupplierController,
+	categoryController categoryHandler.CategoryController,
 ) *echo.Echo {
-	e := echo.New()
+	router := echo.New()
 
 	// Middleware
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
+	router.Use(middleware.Logger())
+	router.Use(middleware.Recover())
 
 	// Adaptasi error handler dari httprouter ke echo
-	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+	router.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			defer func() {
 				if r := recover(); r != nil {
@@ -39,7 +41,7 @@ func NewRouter(
 	})
 
 	// Group utama untuk versi API
-	apiV1 := e.Group("/api/v1")
+	apiV1 := router.Group("/api/v1")
 
 	// Group untuk produk
 	productGroup := apiV1.Group("/product")
@@ -57,5 +59,12 @@ func NewRouter(
 	supplierGroup.PUT("/update/:supplierId", adapters.HttprouterHandlerToEchoHandler(supplierController.Update))
 	supplierGroup.DELETE("/delete/:supplierId", adapters.HttprouterHandlerToEchoHandler(supplierController.Delete))
 
-	return e
+	categoryGroup := apiV1.Group("/category")
+	categoryGroup.GET("/lists", adapters.HttprouterHandlerToEchoHandler(categoryController.FindAll))
+	categoryGroup.POST("/add", adapters.HttprouterHandlerToEchoHandler(categoryController.Create))
+	categoryGroup.GET("/show/:categoryId", adapters.HttprouterHandlerToEchoHandler(categoryController.FindById))
+	categoryGroup.PUT("/update/:categoryId", adapters.HttprouterHandlerToEchoHandler(categoryController.Update))
+	categoryGroup.DELETE("/delete/:categoryId", adapters.HttprouterHandlerToEchoHandler(categoryController.Delete))
+
+	return router
 }

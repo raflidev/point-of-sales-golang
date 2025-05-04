@@ -20,6 +20,8 @@ func NewCategoryRepository(db *gorm.DB) CategoryRepository {
 }
 
 func (repository *CategoryRepositoryImpl) Save(ctx context.Context, category entity.Category) entity.Category {
+	// Generate a new UUID for the category
+	category.Id = uuid.New()
 	result := repository.DB.Create(&category)
 	if result.Error != nil {
 		log.Println(result.Error)

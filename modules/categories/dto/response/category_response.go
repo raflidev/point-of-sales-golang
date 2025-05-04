@@ -1,6 +1,8 @@
 package response
 
+import "github.com/google/uuid"
+
 type CategoryResponse struct {
-	Id            string `json:"id"`
-	Nama_kategori string `json:"nama_kategori"`
+	Id            uuid.UUID `json:"id"`
+	Nama_kategori string    `json:"nama_kategori"`
 }

@@ -5,6 +5,9 @@ import (
 	"golang-point-of-sales-system/app"
 	"golang-point-of-sales-system/helper"
 	"golang-point-of-sales-system/middleware"
+	categoryController "golang-point-of-sales-system/modules/categories/controller"
+	categoryRepo "golang-point-of-sales-system/modules/categories/domain/repository"
+	categoryService "golang-point-of-sales-system/modules/categories/domain/service"
 	productController "golang-point-of-sales-system/modules/products/controller"
 	productRepo "golang-point-of-sales-system/modules/products/domain/repository"
 	productService "golang-point-of-sales-system/modules/products/domain/service"
@@ -37,7 +40,11 @@ func main() {
 	supplierService := supplierService.NewSupplierService(supplierRepository, validate)
 	supplierHandler := supplierController.NewSupplierController(supplierService)
 
-	router := app.NewRouter(productHandler, supplierHandler)
+	categoryRepository := categoryRepo.NewCategoryRepository(db)
+	categoryService := categoryService.NewCategoryService(categoryRepository, validate)
+	categoryHandler := categoryController.NewCategoryController(categoryService)
+
+	router := app.NewRouter(productHandler, supplierHandler, categoryHandler)
 	authMiddleware := middleware.NewAuthMiddleware(router)
 
 	server := NewServer(authMiddleware)

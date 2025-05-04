@@ -9,7 +9,7 @@ import (
 	"golang-point-of-sales-system/modules/categories/dto/request"
 	"golang-point-of-sales-system/modules/categories/dto/response"
 
-	"github.com/go-playground/validator"
+	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 )
 
@@ -24,12 +24,6 @@ func NewCategoryService(categoryRepository repository.CategoryRepository, valida
 		Validate:           validate,
 	}
 }
-
-// Create(ctx context.Context, request request.CategoryCreateRequest) response.CategoryResponse
-// Update(ctx context.Context, request request.CategoryUpdateRequest) response.CategoryResponse
-// Delete(ctx context.Context, categoryId uuid.UUID)
-// FindById(ctx context.Context, categoryId uuid.UUID) response.CategoryResponse
-// FindAll(ctx context.Context) []response.CategoryResponse
 
 func (service *CategoryServiceImpl) Create(ctx context.Context, request request.CategoryCreateRequest) response.CategoryResponse {
 	err := service.Validate.Struct(request)
