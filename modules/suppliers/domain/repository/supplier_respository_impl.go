@@ -20,15 +20,17 @@ func NewSupplierRepository(db *gorm.DB) SupplierRepository {
 	}
 }
 
-func (repository *SupplierRepositoryImpl) Save(ctx context.Context, product entity.Supplier) entity.Supplier {
-	result := repository.DB.Create(&product)
+func (repository *SupplierRepositoryImpl) Save(ctx context.Context, supplier entity.Supplier) entity.Supplier {
+	if supplier.Id == uuid.Nil {
+		supplier.Id = uuid.New()
+	}
+	result := repository.DB.Create(&supplier)
 	if result.Error != nil {
 		log.Println(result.Error)
 	} else {
-		log.Println("Product created successfully")
+		log.Println("Supplier created successfully")
 	}
-
-	return product
+	return supplier
 }
 
 func (repository *SupplierRepositoryImpl) Update(ctx context.Context, product entity.Supplier) (entity.Supplier, error) {
@@ -61,9 +63,9 @@ func (repository *SupplierRepositoryImpl) Delete(ctx context.Context, product en
 
 }
 
-func (repository *SupplierRepositoryImpl) FindById(ctx context.Context, productId uuid.UUID) (entity.Supplier, error) {
-	var product entity.Supplier
-	result := repository.DB.First(&product, "id = ?", productId)
+func (repository *SupplierRepositoryImpl) FindById(ctx context.Context, supplierId uuid.UUID) (entity.Supplier, error) {
+	var supplier entity.Supplier
+	result := repository.DB.First(&supplier, "id = ?", supplierId)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return entity.Supplier{}, result.Error
@@ -72,7 +74,7 @@ func (repository *SupplierRepositoryImpl) FindById(ctx context.Context, productI
 		return entity.Supplier{}, result.Error
 	}
 
-	return product, nil
+	return supplier, nil
 }
 
 func (repository *SupplierRepositoryImpl) FindAll(ctx context.Context) []entity.Supplier {

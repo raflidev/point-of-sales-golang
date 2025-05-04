@@ -1,15 +1,17 @@
 package app
 
 import (
+	"golang-point-of-sales-system/adapters"
 	"golang-point-of-sales-system/exception"
 	productHandler "golang-point-of-sales-system/modules/products/controller"
 	supplierHandler "golang-point-of-sales-system/modules/suppliers/controller"
 
-	"github.com/julienschmidt/httprouter"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 type Router struct {
-	router             *httprouter.Router
+	echo               *echo.Echo
 	productController  productHandler.ProductController
 	supplierController supplierHandler.SupplierController
 }
@@ -17,24 +19,43 @@ type Router struct {
 func NewRouter(
 	productController productHandler.ProductController,
 	supplierController supplierHandler.SupplierController,
-) *httprouter.Router {
-	router := httprouter.New()
+) *echo.Echo {
+	e := echo.New()
 
-	// Product routes
-	router.GET("/api/v1/product/lists", productController.FindAll)
-	router.POST("/api/v1/product/add", productController.Create)
-	router.GET("/api/v1/product/show/:productId", productController.FindById)
-	router.PUT("/api/v1/product/update/:productId", productController.Update)
-	router.DELETE("/api/v1/product/delete/:productId", productController.Delete)
+	// Middleware
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
 
-	// Supplier routes
-	router.GET("/api/v1/supplier/lists", supplierController.FindAll)
-	router.POST("/api/v1/supplier/add", supplierController.Create)
-	router.GET("/api/v1/supplier/show/:supplierId", supplierController.FindById)
-	router.PUT("/api/v1/supplier/update/:supplierId", supplierController.Update)
-	router.DELETE("/api/v1/supplier/delete/:supplierId", supplierController.Delete)
+	// Adaptasi error handler dari httprouter ke echo
+	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			defer func() {
+				if r := recover(); r != nil {
+					exception.ErrorHandler(c.Response().Writer, c.Request(), r)
+				}
+			}()
+			return next(c)
+		}
+	})
 
-	router.PanicHandler = exception.ErrorHandler
+	// Group utama untuk versi API
+	apiV1 := e.Group("/api/v1")
 
-	return router
+	// Group untuk produk
+	productGroup := apiV1.Group("/product")
+	productGroup.GET("/lists", adapters.HttprouterHandlerToEchoHandler(productController.FindAll))
+	productGroup.POST("/add", adapters.HttprouterHandlerToEchoHandler(productController.Create))
+	productGroup.GET("/show/:productId", adapters.HttprouterHandlerToEchoHandler(productController.FindById))
+	productGroup.PUT("/update/:productId", adapters.HttprouterHandlerToEchoHandler(productController.Update))
+	productGroup.DELETE("/delete/:productId", adapters.HttprouterHandlerToEchoHandler(productController.Delete))
+
+	// Group untuk supplier
+	supplierGroup := apiV1.Group("/supplier")
+	supplierGroup.GET("/lists", adapters.HttprouterHandlerToEchoHandler(supplierController.FindAll))
+	supplierGroup.POST("/add", adapters.HttprouterHandlerToEchoHandler(supplierController.Create))
+	supplierGroup.GET("/show/:supplierId", adapters.HttprouterHandlerToEchoHandler(supplierController.FindById))
+	supplierGroup.PUT("/update/:supplierId", adapters.HttprouterHandlerToEchoHandler(supplierController.Update))
+	supplierGroup.DELETE("/delete/:supplierId", adapters.HttprouterHandlerToEchoHandler(supplierController.Delete))
+
+	return e
 }

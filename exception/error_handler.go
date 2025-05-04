@@ -10,18 +10,18 @@ import (
 
 func ErrorHandler(writter http.ResponseWriter, request *http.Request, err interface{}) {
 
-	if notFoundError(writter, request, err) {
+	if notFoundError(writter, err) {
 		return
 	}
 
-	if validationError(writter, request, err) {
+	if validationError(writter, err) {
 		return
 	}
 
-	internalServerError(writter, request, err)
+	internalServerError(writter, err)
 }
 
-func validationError(writter http.ResponseWriter, cRequest *http.Request, err interface{}) bool {
+func validationError(writter http.ResponseWriter, err interface{}) bool {
 	exception, ok := err.(validator.ValidationErrors)
 
 	if ok {
@@ -42,7 +42,7 @@ func validationError(writter http.ResponseWriter, cRequest *http.Request, err in
 
 }
 
-func notFoundError(writter http.ResponseWriter, cRequest *http.Request, err interface{}) bool {
+func notFoundError(writter http.ResponseWriter, err interface{}) bool {
 	exception, ok := err.(NotFoundError)
 
 	if ok {
@@ -62,7 +62,7 @@ func notFoundError(writter http.ResponseWriter, cRequest *http.Request, err inte
 	}
 }
 
-func internalServerError(writter http.ResponseWriter, cRequest *http.Request, err interface{}) {
+func internalServerError(writter http.ResponseWriter, err interface{}) {
 	writter.Header().Set("Content-Type", "application/json")
 	writter.WriteHeader(http.StatusInternalServerError)
 
