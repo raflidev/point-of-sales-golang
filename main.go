@@ -14,6 +14,10 @@ import (
 	supplierController "golang-point-of-sales-system/modules/suppliers/controller"
 	supplierRepo "golang-point-of-sales-system/modules/suppliers/domain/repository"
 	supplierService "golang-point-of-sales-system/modules/suppliers/domain/service"
+	userController "golang-point-of-sales-system/modules/users/controller"
+	userRepo "golang-point-of-sales-system/modules/users/domain/repository"
+	userService "golang-point-of-sales-system/modules/users/domain/service"
+
 	"net/http"
 
 	_ "github.com/jmoiron/sqlx"
@@ -44,7 +48,11 @@ func main() {
 	categoryService := categoryService.NewCategoryService(categoryRepository, validate)
 	categoryHandler := categoryController.NewCategoryController(categoryService)
 
-	router := app.NewRouter(productHandler, supplierHandler, categoryHandler)
+	userRepository := userRepo.NewUserRepository(db)
+	userService := userService.NewUserService(userRepository, validate)
+	userHandler := userController.NewUserController(userService)
+
+	router := app.NewRouter(productHandler, supplierHandler, categoryHandler, userHandler)
 	authMiddleware := middleware.NewAuthMiddleware(router)
 
 	server := NewServer(authMiddleware)

@@ -6,6 +6,7 @@ import (
 	categoryHandler "golang-point-of-sales-system/modules/categories/controller"
 	productHandler "golang-point-of-sales-system/modules/products/controller"
 	supplierHandler "golang-point-of-sales-system/modules/suppliers/controller"
+	userHandler "golang-point-of-sales-system/modules/users/controller"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -15,12 +16,15 @@ type Router struct {
 	echo               *echo.Echo
 	productController  productHandler.ProductController
 	supplierController supplierHandler.SupplierController
+	categoryController categoryHandler.CategoryController
+	userController     userHandler.UserController
 }
 
 func NewRouter(
 	productController productHandler.ProductController,
 	supplierController supplierHandler.SupplierController,
 	categoryController categoryHandler.CategoryController,
+	userController userHandler.UserController,
 ) *echo.Echo {
 	router := echo.New()
 
@@ -66,5 +70,13 @@ func NewRouter(
 	categoryGroup.PUT("/update/:categoryId", adapters.HttprouterHandlerToEchoHandler(categoryController.Update))
 	categoryGroup.DELETE("/delete/:categoryId", adapters.HttprouterHandlerToEchoHandler(categoryController.Delete))
 
+	userGroup := apiV1.Group("/user")
+	userGroup.GET("/lists", adapters.HttprouterHandlerToEchoHandler(userController.FindAll))
+	userGroup.POST("/add", adapters.HttprouterHandlerToEchoHandler(userController.Create))
+	userGroup.GET("/show/:userId", adapters.HttprouterHandlerToEchoHandler(userController.FindById))
+	userGroup.PUT("/update/:userId", adapters.HttprouterHandlerToEchoHandler(userController.Update))
+	userGroup.DELETE("/delete/:userId", adapters.HttprouterHandlerToEchoHandler(userController.Delete))
+	userGroup.POST("/login", adapters.HttprouterHandlerToEchoHandler(userController.Login))
+	userGroup.PUT("/change-password", adapters.HttprouterHandlerToEchoHandler(userController.ChangePassword))
 	return router
 }

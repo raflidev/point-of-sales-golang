@@ -3,6 +3,8 @@ package helper
 import (
 	entityProduct "golang-point-of-sales-system/modules/products/domain/entity"
 	responseProduct "golang-point-of-sales-system/modules/products/dto/response"
+	"golang-point-of-sales-system/modules/users/domain/entity"
+	"golang-point-of-sales-system/modules/users/dto/response"
 
 	entitySupplier "golang-point-of-sales-system/modules/suppliers/domain/entity"
 	responseSupplier "golang-point-of-sales-system/modules/suppliers/dto/response"
@@ -64,4 +66,14 @@ func ToCategoryResponses(categories []entityCategory.Category) []responseCategor
 	}
 
 	return categoryResponses
+}
+
+func ToUserResponse(user entity.User) response.UserResponse {
+	return response.UserResponse{
+		Id:    user.Id,
+		Nama:  user.Nama,
+		Email: user.Email,
+		Foto:  user.Foto,
+		Role:  user.Role,
+	}
 }
