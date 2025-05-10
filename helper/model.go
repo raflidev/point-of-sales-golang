@@ -11,6 +11,9 @@ import (
 
 	entityCategory "golang-point-of-sales-system/modules/categories/domain/entity"
 	responseCategory "golang-point-of-sales-system/modules/categories/dto/response"
+
+	entityMember "golang-point-of-sales-system/modules/members/domain/entity"
+	responseMember "golang-point-of-sales-system/modules/members/dto/response"
 )
 
 func ToProductResponse(product entityProduct.Product) responseProduct.ProductResponse {
@@ -76,4 +79,24 @@ func ToUserResponse(user entity.User) response.UserResponse {
 		Foto:  user.Foto,
 		Role:  user.Role,
 	}
+}
+
+func ToMemberResponse(member entityMember.Member) responseMember.MemberResponse {
+	return responseMember.MemberResponse{
+		Id:          member.Id,
+		Kode_member: member.Kode_member,
+		Nama:        member.Nama,
+		Telepon:     member.Telepon,
+		Alamat:      member.Alamat,
+		Keterangan:  member.Keterangan,
+	}
+}
+
+func ToMemberResponses(members []entityMember.Member) []responseMember.MemberResponse {
+	var memberResponses []responseMember.MemberResponse
+	for _, member := range members {
+		memberResponses = append(memberResponses, ToMemberResponse(member))
+	}
+
+	return memberResponses
 }

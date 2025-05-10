@@ -4,6 +4,7 @@ import (
 	"golang-point-of-sales-system/adapters"
 	"golang-point-of-sales-system/exception"
 	categoryHandler "golang-point-of-sales-system/modules/categories/controller"
+	memberHandler "golang-point-of-sales-system/modules/members/controller"
 	productHandler "golang-point-of-sales-system/modules/products/controller"
 	supplierHandler "golang-point-of-sales-system/modules/suppliers/controller"
 	userHandler "golang-point-of-sales-system/modules/users/controller"
@@ -18,6 +19,7 @@ type Router struct {
 	supplierController supplierHandler.SupplierController
 	categoryController categoryHandler.CategoryController
 	userController     userHandler.UserController
+	memberController   memberHandler.MemberController
 }
 
 func NewRouter(
@@ -25,6 +27,7 @@ func NewRouter(
 	supplierController supplierHandler.SupplierController,
 	categoryController categoryHandler.CategoryController,
 	userController userHandler.UserController,
+	memberController memberHandler.MemberController,
 ) *echo.Echo {
 	router := echo.New()
 
@@ -78,5 +81,13 @@ func NewRouter(
 	userGroup.DELETE("/delete/:userId", adapters.HttprouterHandlerToEchoHandler(userController.Delete))
 	userGroup.POST("/login", adapters.HttprouterHandlerToEchoHandler(userController.Login))
 	userGroup.PUT("/change-password", adapters.HttprouterHandlerToEchoHandler(userController.ChangePassword))
+
+	memberGroup := apiV1.Group("/member")
+	memberGroup.GET("/lists", adapters.HttprouterHandlerToEchoHandler(memberController.FindAll))
+	memberGroup.POST("/add", adapters.HttprouterHandlerToEchoHandler(memberController.Create))
+	memberGroup.GET("/show/:memberId", adapters.HttprouterHandlerToEchoHandler(memberController.FindById))
+	memberGroup.PUT("/update/:memberId", adapters.HttprouterHandlerToEchoHandler(memberController.Update))
+	memberGroup.DELETE("/delete/:memberId", adapters.HttprouterHandlerToEchoHandler(memberController.Delete))
+
 	return router
 }
