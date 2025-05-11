@@ -5,6 +5,7 @@ import (
 	"golang-point-of-sales-system/exception"
 	categoryHandler "golang-point-of-sales-system/modules/categories/controller"
 	memberHandler "golang-point-of-sales-system/modules/members/controller"
+	pembelianHandler "golang-point-of-sales-system/modules/pembelian/controller"
 	productHandler "golang-point-of-sales-system/modules/products/controller"
 	supplierHandler "golang-point-of-sales-system/modules/suppliers/controller"
 	userHandler "golang-point-of-sales-system/modules/users/controller"
@@ -14,12 +15,13 @@ import (
 )
 
 type Router struct {
-	echo               *echo.Echo
-	productController  productHandler.ProductController
-	supplierController supplierHandler.SupplierController
-	categoryController categoryHandler.CategoryController
-	userController     userHandler.UserController
-	memberController   memberHandler.MemberController
+	echo                *echo.Echo
+	productController   productHandler.ProductController
+	supplierController  supplierHandler.SupplierController
+	categoryController  categoryHandler.CategoryController
+	userController      userHandler.UserController
+	memberController    memberHandler.MemberController
+	pembelianController pembelianHandler.PembelianController
 }
 
 func NewRouter(
@@ -28,6 +30,8 @@ func NewRouter(
 	categoryController categoryHandler.CategoryController,
 	userController userHandler.UserController,
 	memberController memberHandler.MemberController,
+	pembelianController pembelianHandler.PembelianController,
+
 ) *echo.Echo {
 	router := echo.New()
 
@@ -88,6 +92,13 @@ func NewRouter(
 	memberGroup.GET("/show/:memberId", adapters.HttprouterHandlerToEchoHandler(memberController.FindById))
 	memberGroup.PUT("/update/:memberId", adapters.HttprouterHandlerToEchoHandler(memberController.Update))
 	memberGroup.DELETE("/delete/:memberId", adapters.HttprouterHandlerToEchoHandler(memberController.Delete))
+
+	pembelianGroup := apiV1.Group("/pembelian")
+	pembelianGroup.GET("/lists", adapters.HttprouterHandlerToEchoHandler(pembelianController.FindAll))
+	pembelianGroup.POST("/add", adapters.HttprouterHandlerToEchoHandler(pembelianController.Create))
+	pembelianGroup.GET("/show/:pembelianId", adapters.HttprouterHandlerToEchoHandler(pembelianController.FindById))
+	pembelianGroup.PUT("/update/:pembelianId", adapters.HttprouterHandlerToEchoHandler(pembelianController.Update))
+	pembelianGroup.DELETE("/delete/:pembelianId", adapters.HttprouterHandlerToEchoHandler(pembelianController.Delete))
 
 	return router
 }

@@ -14,6 +14,9 @@ import (
 
 	entityMember "golang-point-of-sales-system/modules/members/domain/entity"
 	responseMember "golang-point-of-sales-system/modules/members/dto/response"
+
+	entityPembelian "golang-point-of-sales-system/modules/pembelian/domain/entity"
+	responsePembelian "golang-point-of-sales-system/modules/pembelian/dto/response"
 )
 
 func ToProductResponse(product entityProduct.Product) responseProduct.ProductResponse {
@@ -99,4 +102,24 @@ func ToMemberResponses(members []entityMember.Member) []responseMember.MemberRes
 	}
 
 	return memberResponses
+}
+
+func ToPembelianResponse(pembelian entityPembelian.Pembelian) responsePembelian.PembelianResponse {
+	return responsePembelian.PembelianResponse{
+		Id:          pembelian.Id,
+		Supplier_id: pembelian.Supplier_id,
+		Total_item:  pembelian.Total_item,
+		Total_harga: pembelian.Total_harga,
+		Diskon:      pembelian.Diskon,
+		Bayar:       pembelian.Bayar,
+	}
+}
+
+func ToPembelianResponses(Pembelians []entityPembelian.Pembelian) []responsePembelian.PembelianResponse {
+	var pembelianResponses []responsePembelian.PembelianResponse
+	for _, pembelian := range Pembelians {
+		pembelianResponses = append(pembelianResponses, ToPembelianResponse(pembelian))
+	}
+
+	return pembelianResponses
 }
