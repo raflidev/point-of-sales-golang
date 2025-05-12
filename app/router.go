@@ -7,6 +7,7 @@ import (
 	memberHandler "golang-point-of-sales-system/modules/members/controller"
 	pembelianHandler "golang-point-of-sales-system/modules/pembelian/controller"
 	pembelianDetailHandler "golang-point-of-sales-system/modules/pembelianDetail/controller"
+	penjualanHandler "golang-point-of-sales-system/modules/penjualan/controller"
 	productHandler "golang-point-of-sales-system/modules/products/controller"
 	supplierHandler "golang-point-of-sales-system/modules/suppliers/controller"
 	userHandler "golang-point-of-sales-system/modules/users/controller"
@@ -24,6 +25,7 @@ type Router struct {
 	memberController          memberHandler.MemberController
 	pembelianController       pembelianHandler.PembelianController
 	pembelianDetailController pembelianDetailHandler.PembelianDetailController
+	penjualanController       penjualanHandler.PenjualanController
 }
 
 func NewRouter(
@@ -34,6 +36,7 @@ func NewRouter(
 	memberController memberHandler.MemberController,
 	pembelianController pembelianHandler.PembelianController,
 	pembelianDetailController pembelianDetailHandler.PembelianDetailController,
+	penjualanController penjualanHandler.PenjualanController,
 
 ) *echo.Echo {
 	router := echo.New()
@@ -109,6 +112,13 @@ func NewRouter(
 	pembelianDetailGroup.GET("/show/:pembelianDetailId", adapters.HttprouterHandlerToEchoHandler(pembelianDetailController.FindById))
 	pembelianDetailGroup.PUT("/update/:pembelianDetailId", adapters.HttprouterHandlerToEchoHandler(pembelianDetailController.Update))
 	pembelianDetailGroup.DELETE("/delete/:pembelianDetailId", adapters.HttprouterHandlerToEchoHandler(pembelianDetailController.Delete))
+
+	penjualanGroup := apiV1.Group("/penjualan")
+	penjualanGroup.GET("/lists", adapters.HttprouterHandlerToEchoHandler(penjualanController.FindAll))
+	penjualanGroup.POST("/add", adapters.HttprouterHandlerToEchoHandler(penjualanController.Create))
+	penjualanGroup.GET("/show/:penjualanId", adapters.HttprouterHandlerToEchoHandler(penjualanController.FindById))
+	penjualanGroup.PUT("/update/:penjualanId", adapters.HttprouterHandlerToEchoHandler(penjualanController.Update))
+	penjualanGroup.DELETE("/delete/:penjualanId", adapters.HttprouterHandlerToEchoHandler(penjualanController.Delete))
 
 	return router
 }
