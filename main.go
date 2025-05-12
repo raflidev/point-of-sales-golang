@@ -11,6 +11,12 @@ import (
 	memberController "golang-point-of-sales-system/modules/members/controller"
 	memberRepo "golang-point-of-sales-system/modules/members/domain/repository"
 	memberService "golang-point-of-sales-system/modules/members/domain/service"
+	pembelianController "golang-point-of-sales-system/modules/pembelian/controller"
+	pembelianRepo "golang-point-of-sales-system/modules/pembelian/domain/repository"
+	pembelianService "golang-point-of-sales-system/modules/pembelian/domain/service"
+	pembelianDetailController "golang-point-of-sales-system/modules/pembelianDetail/controller"
+	pembelianDetailRepo "golang-point-of-sales-system/modules/pembelianDetail/domain/repository"
+	pembelianDetailService "golang-point-of-sales-system/modules/pembelianDetail/domain/service"
 	productController "golang-point-of-sales-system/modules/products/controller"
 	productRepo "golang-point-of-sales-system/modules/products/domain/repository"
 	productService "golang-point-of-sales-system/modules/products/domain/service"
@@ -59,7 +65,15 @@ func main() {
 	memberService := memberService.NewMemberService(memberRepository, validate)
 	memberHandler := memberController.NewMemberController(memberService)
 
-	router := app.NewRouter(productHandler, supplierHandler, categoryHandler, userHandler, memberHandler)
+	pembelianRepository := pembelianRepo.NewPembelianRepository(db)
+	pembelianService := pembelianService.NewPembelianService(pembelianRepository, validate)
+	pembelianHandler := pembelianController.NewPembelianController(pembelianService)
+
+	pembelianDetailRepository := pembelianDetailRepo.NewPembelianDetailRepository(db)
+	pembelianDetailService := pembelianDetailService.NewPembelianDetailService(pembelianDetailRepository, validate)
+	pembelianDetailHandler := pembelianDetailController.NewPembelianDetailController(pembelianDetailService)
+
+	router := app.NewRouter(productHandler, supplierHandler, categoryHandler, userHandler, memberHandler, pembelianHandler, pembelianDetailHandler)
 	authMiddleware := middleware.NewAuthMiddleware(router)
 
 	server := NewServer(authMiddleware)

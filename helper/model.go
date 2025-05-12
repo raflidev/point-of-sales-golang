@@ -17,6 +17,9 @@ import (
 
 	entityPembelian "golang-point-of-sales-system/modules/pembelian/domain/entity"
 	responsePembelian "golang-point-of-sales-system/modules/pembelian/dto/response"
+
+	entityPembelianDetail "golang-point-of-sales-system/modules/pembelianDetail/domain/entity"
+	responsePembelianDetail "golang-point-of-sales-system/modules/pembelianDetail/dto/response"
 )
 
 func ToProductResponse(product entityProduct.Product) responseProduct.ProductResponse {
@@ -119,6 +122,26 @@ func ToPembelianResponses(Pembelians []entityPembelian.Pembelian) []responsePemb
 	var pembelianResponses []responsePembelian.PembelianResponse
 	for _, pembelian := range Pembelians {
 		pembelianResponses = append(pembelianResponses, ToPembelianResponse(pembelian))
+	}
+
+	return pembelianResponses
+}
+
+func ToPembelianDetailResponse(pembelianDetail entityPembelianDetail.PembelianDetail) responsePembelianDetail.PembelianDetailResponse {
+	return responsePembelianDetail.PembelianDetailResponse{
+		Id:           pembelianDetail.Id,
+		Pembelian_id: pembelianDetail.Pembelian_id,
+		Produk_id:    pembelianDetail.Produk_id,
+		Harga_beli:   pembelianDetail.Harga_beli,
+		Jumlah:       pembelianDetail.Jumlah,
+		Subtotal:     pembelianDetail.Subtotal,
+	}
+}
+
+func ToPembelianDetailResponses(PembelianDetails []entityPembelianDetail.PembelianDetail) []responsePembelianDetail.PembelianDetailResponse {
+	var pembelianResponses []responsePembelianDetail.PembelianDetailResponse
+	for _, pembelianDetail := range PembelianDetails {
+		pembelianResponses = append(pembelianResponses, ToPembelianDetailResponse(pembelianDetail))
 	}
 
 	return pembelianResponses
