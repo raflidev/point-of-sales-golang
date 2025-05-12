@@ -17,6 +17,9 @@ import (
 	pembelianDetailController "golang-point-of-sales-system/modules/pembelianDetail/controller"
 	pembelianDetailRepo "golang-point-of-sales-system/modules/pembelianDetail/domain/repository"
 	pembelianDetailService "golang-point-of-sales-system/modules/pembelianDetail/domain/service"
+	penjualanController "golang-point-of-sales-system/modules/penjualan/controller"
+	penjualanRepo "golang-point-of-sales-system/modules/penjualan/domain/repository"
+	penjualanService "golang-point-of-sales-system/modules/penjualan/domain/service"
 	productController "golang-point-of-sales-system/modules/products/controller"
 	productRepo "golang-point-of-sales-system/modules/products/domain/repository"
 	productService "golang-point-of-sales-system/modules/products/domain/service"
@@ -73,7 +76,11 @@ func main() {
 	pembelianDetailService := pembelianDetailService.NewPembelianDetailService(pembelianDetailRepository, validate)
 	pembelianDetailHandler := pembelianDetailController.NewPembelianDetailController(pembelianDetailService)
 
-	router := app.NewRouter(productHandler, supplierHandler, categoryHandler, userHandler, memberHandler, pembelianHandler, pembelianDetailHandler)
+	penjualanRepository := penjualanRepo.NewPenjualanRepository(db)
+	penjualanService := penjualanService.NewPenjualanService(penjualanRepository, validate)
+	penjualanHandler := penjualanController.NewPenjualanController(penjualanService)
+
+	router := app.NewRouter(productHandler, supplierHandler, categoryHandler, userHandler, memberHandler, pembelianHandler, pembelianDetailHandler, penjualanHandler)
 	authMiddleware := middleware.NewAuthMiddleware(router)
 
 	server := NewServer(authMiddleware)
